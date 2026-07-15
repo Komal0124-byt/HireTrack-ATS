@@ -16,7 +16,14 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/jobs" element={<Jobs />} />
-        <Route path="/candidates" element={<Candidates />} />
+        <Route
+           path="/candidates"
+            element={
+               <ProtectedRoute>
+               <Candidates />
+               </ProtectedRoute>
+              }
+        />
         <Route path="/interviews" element={<Interviews />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>

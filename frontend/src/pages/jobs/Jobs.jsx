@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import Layout from "../../components/layout/Layout";
 import API from "../../services/api";
 import AddJobForm from "../../components/jobs/AddJobForm";
+
 function Jobs() {
   const [jobs, setJobs] = useState([]);
-
+  const [search, setSearch] = useState("");
   useEffect(() => {
     fetchJobs();
   }, []);
@@ -25,10 +26,27 @@ function Jobs() {
     console.error(error);
   }
 };
-
+const filteredJobs = jobs.filter((job) =>
+  job.title.toLowerCase().includes(search.toLowerCase()) ||
+  job.company.toLowerCase().includes(search.toLowerCase())
+);
  return (
   <Layout>
     <h1 className="text-3xl font-bold mb-6">Jobs</h1>
+    <input
+  type="text"
+  placeholder="Search jobs..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="w-full border rounded-lg p-3 mb-6"
+/>
+<select
+  className="border rounded-lg p-3 mb-6 ml-4"
+>
+  <option>All Status</option>
+  <option>Open</option>
+  <option>Closed</option>
+</select>
     <AddJobForm onJobAdded={fetchJobs} />
     {jobs.length === 0 && (
       <div className="bg-white rounded-lg shadow p-6 text-center">

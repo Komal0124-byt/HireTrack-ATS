@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
+import candidateRoutes from "./routes/candidateRoutes.js";
 dotenv.config();
 
 connectDB();
@@ -17,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/jobs", jobRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/candidates", candidateRoutes);
 app.get("/", (req, res) => {
   res.send("🚀 HireTrack ATS Backend Running...");
 });
