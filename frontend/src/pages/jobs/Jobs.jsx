@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "../../components/layout/Layout";
 import API from "../../services/api";
-
+import AddJobForm from "../../components/jobs/AddJobForm";
 function Jobs() {
   const [jobs, setJobs] = useState([]);
 
@@ -17,11 +17,19 @@ function Jobs() {
       console.error(error);
     }
   };
+  const handleDelete = async (id) => {
+  try {
+    await API.delete(`/jobs/${id}`);
+    fetchJobs();
+  } catch (error) {
+    console.error(error);
+  }
+};
 
  return (
   <Layout>
     <h1 className="text-3xl font-bold mb-6">Jobs</h1>
-
+    <AddJobForm onJobAdded={fetchJobs} />
     {jobs.length === 0 && (
       <div className="bg-white rounded-lg shadow p-6 text-center">
         <h2 className="text-xl font-semibold">
@@ -55,6 +63,12 @@ function Jobs() {
           <span className="inline-block mt-3 px-3 py-1 bg-green-100 text-green-700 rounded">
             {job.status}
           </span>
+          <button
+              onClick={() => handleDelete(job._id)}
+              className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+         >
+              Delete
+          </button>
         </div>
       ))}
     </div>
