@@ -35,3 +35,34 @@ export const getRecentJobs = async (req, res) => {
     });
   }
 };
+export const getRecentCandidates = async (req, res) => {
+  try {
+    const candidates = await Candidate.find()
+      .populate("job", "title")
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    res.status(200).json(candidates);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+export const getUpcomingInterviews = async (req, res) => {
+  try {
+    const interviews = await Interview.find()
+      .populate({
+        path: "candidate",
+        select: "name",
+      })
+      .sort({ date: 1 })
+      .limit(5);
+
+    res.status(200).json(interviews);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
