@@ -8,6 +8,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import candidateRoutes from "./routes/candidateRoutes.js";
+import interviewRoutes from "./routes/interviewRoutes.js";
 dotenv.config();
 
 connectDB();
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use("/api/jobs", jobRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/candidates", candidateRoutes);
+app.use("/api/interviews", interviewRoutes);
 app.get("/", (req, res) => {
   res.send("🚀 HireTrack ATS Backend Running...");
 });
