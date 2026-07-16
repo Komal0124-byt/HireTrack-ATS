@@ -1,34 +1,101 @@
 import Layout from "../../components/layout/Layout";
-import StatCard from "../../components/ui/StatCard";
-import { stats } from "../../utils/dashboardData";
+import { useEffect, useState } from "react"
+import API from "../../services/api";
 
 function Dashboard() {
+  const [stats, setStats] = useState({
+  totalJobs: 0,
+  totalCandidates: 0,
+  totalInterviews: 0,
+  totalUsers: 0,
+});
+const [recentJobs, setRecentJobs] = useState([]);
+useEffect(() => {
+  fetchStats();
+  fetchRecentJobs();
+}, []);
+
+const fetchStats = async () => {
+  try {
+    const res = await API.get("/dashboard/stats");
+    setStats(res.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+const fetchRecentJobs = async () => {
+  try {
+    const res = await API.get("/dashboard/recent-jobs");
+    setRecentJobs(res.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
   return (
     <Layout>
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+  <h1 className="text-3xl font-bold mb-6">
+    Dashboard
+  </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((item) => (
-          <StatCard
-            key={item.id}
-            title={item.title}
-            value={item.value}
-          />
-        ))}
-      </div>
-      <div className="mt-8 bg-white rounded-xl shadow-md p-6">
-  <h2 className="text-xl font-semibold mb-4">
-    Recent Activity
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+    <div className="bg-white rounded-lg shadow p-6">
+      <h2 className="text-gray-500">Total Jobs</h2>
+      <p className="text-4xl font-bold mt-2">
+        {stats.totalJobs}
+      </p>
+    </div>
+
+    <div className="bg-white rounded-lg shadow p-6">
+      <h2 className="text-gray-500">Candidates</h2>
+      <p className="text-4xl font-bold mt-2">
+        {stats.totalCandidates}
+      </p>
+    </div>
+
+    <div className="bg-white rounded-lg shadow p-6">
+      <h2 className="text-gray-500">Interviews</h2>
+      <p className="text-4xl font-bold mt-2">
+        {stats.totalInterviews}
+      </p>
+    </div>
+
+    <div className="bg-white rounded-lg shadow p-6">
+      <h2 className="text-gray-500">Users</h2>
+      <p className="text-4xl font-bold mt-2">
+        {stats.totalUsers}
+      </p>
+    </div>
+  </div>
+   <div className="bg-white rounded-lg shadow p-6 mt-8">
+  <h2 className="text-2xl font-bold mb-4">
+    Recent Jobs
   </h2>
 
-  <ul className="space-y-3">
-    <li>✅ Frontend Developer position created.</li>
-    <li>👤 Rahul Sharma applied.</li>
-    <li>📅 Interview scheduled for Priya Singh.</li>
-    <li>🎉 Aman Verma marked as Hired.</li>
-  </ul>
+  {recentJobs.length === 0 ? (
+    <p>No Jobs Available</p>
+  ) : (
+    recentJobs.map((job) => (
+      <div
+        key={job._id}
+        className="border-b py-3"
+      >
+        <h3 className="font-semibold">
+          {job.title}
+        </h3>
+
+        <p className="text-gray-600">
+          {job.company}
+        </p>
+
+        <p className="text-sm text-gray-500">
+          {job.location}
+        </p>
+      </div>
+    ))
+  )}
 </div>
-    </Layout>
+</Layout>
   );
 }
 
