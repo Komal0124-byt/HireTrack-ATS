@@ -8,6 +8,7 @@ import Candidates from "../pages/candidates/Candidates";
 import Interviews from "../pages/interviews/Interviews";
 import Settings from "../pages/settings/Settings";
 import ProtectedRoute from "./ProtectedRoute";
+import NotFound from "../pages/NotFound";
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -50,6 +51,7 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+<Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
