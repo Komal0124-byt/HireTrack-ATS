@@ -1,6 +1,6 @@
 import { useState } from "react";
 import API from "../../services/api";
-
+import { toast } from "react-toastify";
 function AddJobForm({ onJobAdded }) {
   const [formData, setFormData] = useState({
     title: "",
@@ -24,7 +24,7 @@ function AddJobForm({ onJobAdded }) {
     try {
       await API.post("/jobs", formData);
 
-      alert("Job Added Successfully");
+      toast.success("Job Added Successfully");
 
       setFormData({
         title: "",
@@ -37,7 +37,7 @@ function AddJobForm({ onJobAdded }) {
 
       onJobAdded();
     } catch (error) {
-      alert(error.response?.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 

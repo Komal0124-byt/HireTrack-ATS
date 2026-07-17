@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../../services/api";
-
+import { toast } from "react-toastify";
 function AddCandidateForm({ onCandidateAdded }) {
   const [jobs, setJobs] = useState([]);
 
@@ -39,7 +39,7 @@ function AddCandidateForm({ onCandidateAdded }) {
     try {
       await API.post("/candidates", formData);
 
-      alert("Candidate Added Successfully");
+      toast.success("Candidate Added Successfully");
 
       setFormData({
         name: "",
@@ -52,7 +52,7 @@ function AddCandidateForm({ onCandidateAdded }) {
 
       onCandidateAdded();
     } catch (error) {
-      alert(error.response?.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 

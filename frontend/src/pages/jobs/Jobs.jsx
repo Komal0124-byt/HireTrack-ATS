@@ -18,6 +18,11 @@ function Jobs() {
       console.error(error);
     }
   };
+  const filteredJobs = jobs.filter((job) =>
+  job.title.toLowerCase().includes(search.toLowerCase()) ||
+  job.company.toLowerCase().includes(search.toLowerCase()) ||
+  job.location.toLowerCase().includes(search.toLowerCase())
+);
   const handleDelete = async (id) => {
   try {
     await API.delete(`/jobs/${id}`);
@@ -26,16 +31,12 @@ function Jobs() {
     console.error(error);
   }
 };
-const filteredJobs = jobs.filter((job) =>
-  job.title.toLowerCase().includes(search.toLowerCase()) ||
-  job.company.toLowerCase().includes(search.toLowerCase())
-);
  return (
   <Layout>
     <h1 className="text-3xl font-bold mb-6">Jobs</h1>
     <input
   type="text"
-  placeholder="Search jobs..."
+  placeholder="Search by title, company or location..."
   value={search}
   onChange={(e) => setSearch(e.target.value)}
   className="w-full border rounded-lg p-3 mb-6"
@@ -61,7 +62,7 @@ const filteredJobs = jobs.filter((job) =>
     )}
 
     <div className="grid gap-4">
-      {jobs.map((job) => (
+      {filteredJobs.map((job) => (
         <div
           key={job._id}
           className="bg-white shadow rounded-lg p-5"
