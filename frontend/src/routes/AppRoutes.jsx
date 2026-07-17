@@ -15,7 +15,7 @@ function AppRoutes() {
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/jobs" element={<Jobs />} />
+        
         <Route
            path="/candidates"
             element={
@@ -24,8 +24,32 @@ function AppRoutes() {
                </ProtectedRoute>
               }
         />
-        <Route path="/interviews" element={<Interviews />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route
+  path="/jobs"
+  element={
+    <ProtectedRoute>
+      <Jobs />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/interviews"
+  element={
+    <ProtectedRoute>
+      <Interviews />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/settings"
+  element={
+    <ProtectedRoute>
+      <Settings />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );
