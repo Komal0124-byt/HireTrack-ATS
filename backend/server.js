@@ -10,6 +10,7 @@ import jobRoutes from "./routes/jobRoutes.js";
 import candidateRoutes from "./routes/candidateRoutes.js";
 import interviewRoutes from "./routes/interviewRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import path from "path";
 dotenv.config();
 
 connectDB();
@@ -18,6 +19,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/jobs", jobRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/candidates", candidateRoutes);

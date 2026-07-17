@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import API from "../../services/api";
 import { toast } from "react-toastify";
-function AddJobForm({ onJobAdded }) {
+function AddJobForm({
+  onJobAdded,
+  editingJob,
+  cancelEdit,
+}) {
   const [formData, setFormData] = useState({
     title: "",
     company: "",
@@ -10,7 +14,18 @@ function AddJobForm({ onJobAdded }) {
     status: "Open",
     description: "",
   });
-
+   useEffect(() => {
+  if (editingJob) {
+    setFormData({
+      title: editingJob.title,
+      company: editingJob.company,
+      location: editingJob.location,
+      type: editingJob.type,
+      status: editingJob.status,
+      description: editingJob.description,
+    });
+  }
+}, [editingJob]);
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -19,34 +34,46 @@ function AddJobForm({ onJobAdded }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
+  try {
+    if (editingJob) {
+      await API.put(`/jobs/${editingJob._id}`, formData);
+
+      toast.success("Job Updated Successfully");
+
+      cancelEdit();
+    } else {
       await API.post("/jobs", formData);
 
       toast.success("Job Added Successfully");
-
-      setFormData({
-        title: "",
-        company: "",
-        location: "",
-        type: "Full-Time",
-        status: "Open",
-        description: "",
-      });
-
-      onJobAdded();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
     }
-  };
+
+    setFormData({
+      title: "",
+      company: "",
+      location: "",
+      type: "Full-Time",
+      status: "Open",
+      description: "",
+    });
+
+    onJobAdded();
+  } catch (error) {
+    toast.error(
+      error.response?.data?.message || "Something went wrong"
+    );
+  }
+};
 
   return (
     <form
       onSubmit={handleSubmit}
       className="bg-white shadow rounded-lg p-6 mb-6"
     >
-      <h2 className="text-2xl font-bold mb-4">Add New Job</h2>
+      <h2 className="text-2xl font-bold mb-4">
+         {editingJob ? "Edit Job" : "Add New Job"}
+      </h2>
 
       <input
         type="text"
@@ -87,7 +114,7 @@ function AddJobForm({ onJobAdded }) {
         type="submit"
         className="bg-blue-600 text-white px-5 py-2 rounded"
       >
-        Add Job
+        {editingJob ? "Update Job" : "Add Job"}
       </button>
     </form>
   );

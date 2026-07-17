@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import Layout from "../../components/layout/Layout";
 import API from "../../services/api";
 import AddJobForm from "../../components/jobs/AddJobForm";
-
+import { toast } from "react-toastify";
 function Jobs() {
   const [jobs, setJobs] = useState([]);
+  const [editingJob, setEditingJob] = useState(null);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
   useEffect(() => {
     fetchJobs();
   }, []);
@@ -18,19 +20,44 @@ function Jobs() {
       console.error(error);
     }
   };
-  const filteredJobs = jobs.filter((job) =>
-  job.title.toLowerCase().includes(search.toLowerCase()) ||
-  job.company.toLowerCase().includes(search.toLowerCase()) ||
-  job.location.toLowerCase().includes(search.toLowerCase())
-);
   const handleDelete = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this job?"
+  );
+
+  if (!confirmDelete) return;
+
   try {
     await API.delete(`/jobs/${id}`);
+
+    toast.success("Job Deleted Successfully");
+
     fetchJobs();
   } catch (error) {
-    console.error(error);
+    toast.error(
+      error.response?.data?.message || "Failed to delete job"
+    );
   }
 };
+const handleEdit = (job) => {
+  setEditingJob(job);
+};
+
+const cancelEdit = () => {
+  setEditingJob(null);
+};
+ const filteredJobs = jobs.filter((job) => {
+  const matchesSearch =
+    job.title.toLowerCase().includes(search.toLowerCase()) ||
+    job.company.toLowerCase().includes(search.toLowerCase()) ||
+    job.location.toLowerCase().includes(search.toLowerCase());
+
+  const matchesStatus =
+    statusFilter === "All" || job.status === statusFilter;
+
+  return matchesSearch && matchesStatus;
+});
+  
  return (
   <Layout>
     <h1 className="text-3xl font-bold mb-6">Jobs</h1>
@@ -42,13 +69,22 @@ function Jobs() {
   className="w-full border rounded-lg p-3 mb-6"
 />
 <select
+  value={statusFilter}
+  onChange={(e) => setStatusFilter(e.target.value)}
   className="border rounded-lg p-3 mb-6 ml-4"
 >
-  <option>All Status</option>
-  <option>Open</option>
-  <option>Closed</option>
+  <option value="All">All Status</option>
+  <option value="Open">Open</option>
+  <option value="Closed">Closed</option>
 </select>
-    <AddJobForm onJobAdded={fetchJobs} />
+    <AddJobForm
+  onJobAdded={() => {
+    fetchJobs();
+    setEditingJob(null);
+  }}
+  editingJob={editingJob}
+  cancelEdit={cancelEdit}
+/>
     {jobs.length === 0 && (
       <div className="bg-white rounded-lg shadow p-6 text-center">
         <h2 className="text-xl font-semibold">
@@ -83,9 +119,15 @@ function Jobs() {
             {job.status}
           </span>
           <button
+             onClick={() => handleEdit(job)}
+             className="mt-4 mr-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+           >
+             Edit
+          </button>
+          <button
               onClick={() => handleDelete(job._id)}
               className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-         >
+            >
               Delete
           </button>
         </div>

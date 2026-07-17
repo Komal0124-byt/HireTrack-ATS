@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../../services/api";
 import { toast } from "react-toastify";
+
 function AddCandidateForm({ onCandidateAdded }) {
   const [jobs, setJobs] = useState([]);
 
@@ -10,7 +11,7 @@ function AddCandidateForm({ onCandidateAdded }) {
     phone: "",
     job: "",
     status: "Applied",
-    resume: "",
+    resume: null,
   });
 
   useEffect(() => {
@@ -27,17 +28,40 @@ function AddCandidateForm({ onCandidateAdded }) {
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    if (e.target.type === "file") {
+      setFormData({
+        ...formData,
+        resume: e.target.files[0],
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [e.target.name]: e.target.value,
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      await API.post("/candidates", formData);
+      const data = new FormData();
+
+      data.append("name", formData.name);
+      data.append("email", formData.email);
+      data.append("phone", formData.phone);
+      data.append("job", formData.job);
+      data.append("status", formData.status);
+
+      if (formData.resume) {
+        data.append("resume", formData.resume);
+      }
+
+      await API.post("/candidates", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       toast.success("Candidate Added Successfully");
 
@@ -47,12 +71,14 @@ function AddCandidateForm({ onCandidateAdded }) {
         phone: "",
         job: "",
         status: "Applied",
-        resume: "",
+        resume: null,
       });
 
       onCandidateAdded();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      toast.error(
+        error.response?.data?.message || "Something went wrong"
+      );
     }
   };
 
@@ -72,6 +98,7 @@ function AddCandidateForm({ onCandidateAdded }) {
         value={formData.name}
         onChange={handleChange}
         className="w-full border p-2 rounded mb-3"
+        required
       />
 
       <input
@@ -81,6 +108,7 @@ function AddCandidateForm({ onCandidateAdded }) {
         value={formData.email}
         onChange={handleChange}
         className="w-full border p-2 rounded mb-3"
+        required
       />
 
       <input
@@ -90,6 +118,7 @@ function AddCandidateForm({ onCandidateAdded }) {
         value={formData.phone}
         onChange={handleChange}
         className="w-full border p-2 rounded mb-3"
+        required
       />
 
       <select
@@ -97,6 +126,7 @@ function AddCandidateForm({ onCandidateAdded }) {
         value={formData.job}
         onChange={handleChange}
         className="w-full border p-2 rounded mb-3"
+        required
       >
         <option value="">Select Job</option>
 
@@ -113,12 +143,20 @@ function AddCandidateForm({ onCandidateAdded }) {
         onChange={handleChange}
         className="w-full border p-2 rounded mb-3"
       >
-        <option>Applied</option>
-        <option>Screening</option>
-        <option>Interview</option>
-        <option>Selected</option>
-        <option>Rejected</option>
+        <option value="Applied">Applied</option>
+        <option value="Screening">Screening</option>
+        <option value="Interview">Interview</option>
+        <option value="Selected">Selected</option>
+        <option value="Rejected">Rejected</option>
       </select>
+
+      <input
+        type="file"
+        name="resume"
+        accept=".pdf"
+        onChange={handleChange}
+        className="w-full border p-2 rounded mb-4"
+      />
 
       <button
         type="submit"

@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import API from "../../services/api";
 import { toast } from "react-toastify";
-function AddInterviewForm({ onInterviewAdded }) {
+function AddInterviewForm({
+  onInterviewAdded,
+  editingInterview,
+  cancelEdit,
+}) {
   const [candidates, setCandidates] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -13,8 +17,20 @@ function AddInterviewForm({ onInterviewAdded }) {
   });
 
   useEffect(() => {
-    fetchCandidates();
-  }, []);
+  if (editingInterview) {
+    setFormData({
+      candidate: editingInterview.candidate?._id || "",
+      interviewer: editingInterview.interviewer,
+      date: editingInterview.date
+        ? new Date(editingInterview.date)
+            .toISOString()
+            .slice(0, 16)
+        : "",
+      status: editingInterview.status,
+      notes: editingInterview.notes || "",
+    });
+  }
+}, [editingInterview]);
 
   const fetchCandidates = async () => {
     try {
@@ -32,27 +48,40 @@ function AddInterviewForm({ onInterviewAdded }) {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
+  try {
+    if (editingInterview) {
+      await API.put(
+        `/interviews/${editingInterview._id}`,
+        formData
+      );
+
+      toast.success("Interview Updated Successfully");
+
+      cancelEdit();
+    } else {
       await API.post("/interviews", formData);
 
       toast.success("Interview Scheduled Successfully");
-
-      setFormData({
-        candidate: "",
-        interviewer: "",
-        date: "",
-        status: "Scheduled",
-        notes: "",
-      });
-
-      onInterviewAdded();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
     }
-  };
+
+    setFormData({
+      candidate: "",
+      interviewer: "",
+      date: "",
+      status: "Scheduled",
+      notes: "",
+    });
+
+    onInterviewAdded();
+  } catch (error) {
+    toast.error(
+      error.response?.data?.message || "Something went wrong"
+    );
+  }
+};
 
   return (
     <form
@@ -60,8 +89,10 @@ function AddInterviewForm({ onInterviewAdded }) {
       className="bg-white shadow rounded-lg p-6 mb-6"
     >
       <h2 className="text-2xl font-bold mb-4">
-        Schedule Interview
-      </h2>
+  {editingInterview
+    ? "Edit Interview"
+    : "Schedule Interview"}
+</h2>
 
       <select
         name="candidate"
@@ -118,7 +149,9 @@ function AddInterviewForm({ onInterviewAdded }) {
         type="submit"
         className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
       >
-        Schedule Interview
+        {editingInterview
+  ? "Update Interview"
+  : "Schedule Interview"}
       </button>
     </form>
   );
